@@ -5,9 +5,10 @@ import app from "./src/app.js";
 const PORT = 3000;
 
 const rotas = {
-    "/": "Hello,World!",
+    "/": "Livros API",
     "/contato": "Contato",
-    "/sobre": "Sobre"
+    "/sobre": "Sobre",
+    "/livros": "Lista de livros"
 };
 
 //const server = http.createServer((req, res) => {
