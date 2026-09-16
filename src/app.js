@@ -1,6 +1,6 @@
 import express from "express";
 import connectNaDatabase from "./config/dbConnect.js";
-import livro from "./models/Livro.js";
+import routes from "./routes/index.js";
 
 const db = await connectNaDatabase();
 
@@ -11,21 +11,9 @@ db.on("error", (erro) => {
 console.log("Conexão com o banco feita com sucesso!");
 
 const app = express();
-app.use(express.json());
 
-app.get("/", (req, res) => {
-    res.status(200).send("Livros API");
-});
-
-// Busca todos os livros no MongoDB
-app.get("/livros", async (req, res) => {
-    try {
-        const listaLivros = await livro.find({});
-        res.status(200).json(listaLivros);
-    } catch (erro) {
-        res.status(500).json({ mensagem: `${erro.message} - falha ao buscar livros` });
-    }
-});
+// Configura as rotas da aplicação
+routes(app);
 
 // Busca um livro específico pelo ID do MongoDB
 app.get("/livros/:id", async (req, res) => {
