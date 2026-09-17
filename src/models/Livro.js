@@ -1,11 +1,17 @@
 import mongoose from "mongoose";
+import { autorSchema } from "./Autor.js";
 
-// Aqui definimos a "fôrma" do nosso livro no banco de dados
+// Aqui definimos a "forma" do livro no banco de dados
 const livroSchema = new mongoose.Schema({
     id: { type: mongoose.Schema.Types.ObjectId },
-    titulo: { type: String, required: true }
+    titulo: { type: String, required: true },
+    editora: { type: String },
+    preco: { type: Number },
+    paginas: { type: Number },
+    autor: autorSchema
 }, { versionKey: false });
 
 const livro = mongoose.model("livros", livroSchema);
 
 export default livro;
+
