@@ -13,14 +13,40 @@ class LivroController {
 
 
     // Busca um livro específico pelo ID do MongoDB
+    // Busca um livro específico pelo ID do MongoDB
     static async listarLivroPorId (req, res){
         try {
             const id = req.params.id;
-        const livroEncontrado = await livro.findById(id);
-        res.status(200).json(livroEncontrado);
-    } catch (erro) {
-        res.status(500).json({ mensagem: `${erro.message} - falha na requisição do livro` });
+            const livroEncontrado = await livro.findById(id);
+
+            if (livroEncontrado !== null) {
+                res.status(200).json(livroEncontrado);
+            } else {
+                res.status(404).json({ mensagem: "Id do Livro não localizado." });
+            }
+        } catch (erro) {
+            res.status(500).json({ mensagem: `${erro.message} - falha na requisição do livro` });
+        }
     }
+
+    // Cadastra um novo livro no MongoDB
+    static async cadastrarLivros (req, res){
+        const novoLivro = req.body;
+
+        try {
+            const autorEncontrado = await autor.findById(novoLivro.autor);
+
+            // Prevenção de crash: só executa a criação se o ID do autor for válido e existir no banco
+            if (autorEncontrado !== null) {
+                const livroCompleto = { ...novoLivro, autor: {...autorEncontrado._doc }};
+                const livroCriado = await livro.create(livroCompleto);
+                res.status(201).json({ mensagem: "Livro adicionado com sucesso!", livro: livroCriado }); // <-- Alterado para devolver o livroCriado com ID oficial do banco
+            } else {
+                res.status(404).json({ mensagem: "Id do Autor não encontrado. Não é possível cadastrar o livro." });
+            }
+        } catch (erro) {
+            res.status(500).json({ mensagem: `${erro.message} - falha ao cadastrar livro` });
+        }
     }
 
 
