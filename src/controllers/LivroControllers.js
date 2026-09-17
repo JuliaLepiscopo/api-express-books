@@ -1,4 +1,5 @@
 import livro from "../models/Livro.js";
+import { autor } from "../models/Autor.js";
 
 class LivroController {
     // Busca todos os livros no MongoDB
@@ -25,9 +26,13 @@ class LivroController {
 
     // Cadastra um novo livro no MongoDB
     static async cadastrarLivros (req, res){
+        const novoLivro = req.body;
+
         try {
-            const novoLivro = await livro.create(req.body);
-            res.status(201).json({ mensagem: "Livro adicionado com sucesso!", livro: novoLivro });
+            const autorEncontrado = await autor.findById(novoLivro.autor);
+            const livroCompleto = { ...novoLivro, autor: {...autorEncontrado._doc }};
+            const livroCriado = await livro.create(livroCompleto);
+            res.status(201).json({ mensagem: "Livro adicionado com sucesso!", livro: livroCompleto });
         } catch (erro) {
             res.status(500).json({ mensagem: `${erro.message} - falha ao cadastrar livro` });
         }
