@@ -5,20 +5,20 @@ class LivroController {
     // Busca todos os livros no MongoDB
     static async listarLivros (req, res){
         try{
-        const listaLivros = await livro.find({});
-        res.status(200).json(listaLivros);
-    } catch (erro) {
-        res.status(500).json({ mensagem: `${erro.message} - falha na requisição dos livros` });
-    }}
+            const listaLivros = await livro.find({});
+            res.status(200).json(listaLivros);
+        } catch (erro) {
+            res.status(500).json({ mensagem: `${erro.message} - falha na requisição dos livros` });
+        }
+    }
 
-
-    // Busca um livro específico pelo ID do MongoDB
     // Busca um livro específico pelo ID do MongoDB
     static async listarLivroPorId (req, res){
         try {
             const id = req.params.id;
             const livroEncontrado = await livro.findById(id);
 
+            // Retorna 404 se o ID for válido no formato, mas não existir no banco
             if (livroEncontrado !== null) {
                 res.status(200).json(livroEncontrado);
             } else {
@@ -40,7 +40,7 @@ class LivroController {
             if (autorEncontrado !== null) {
                 const livroCompleto = { ...novoLivro, autor: {...autorEncontrado._doc }};
                 const livroCriado = await livro.create(livroCompleto);
-                res.status(201).json({ mensagem: "Livro adicionado com sucesso!", livro: livroCriado }); // <-- Alterado para devolver o livroCriado com ID oficial do banco
+                res.status(201).json({ mensagem: "Livro adicionado com sucesso!", livro: livroCriado });
             } else {
                 res.status(404).json({ mensagem: "Id do Autor não encontrado. Não é possível cadastrar o livro." });
             }
@@ -49,42 +49,29 @@ class LivroController {
         }
     }
 
-
-    // Cadastra um novo livro no MongoDB
-    static async cadastrarLivros (req, res){
-        const novoLivro = req.body;
-
+    // Atualiza um livro existente no MongoDB
+    static async atualizarLivro (req, res){
         try {
-            const autorEncontrado = await autor.findById(novoLivro.autor);
-            const livroCompleto = { ...novoLivro, autor: {...autorEncontrado._doc }};
-            const livroCriado = await livro.create(livroCompleto);
-            res.status(201).json({ mensagem: "Livro adicionado com sucesso!", livro: livroCompleto });
+            const id = req.params.id;
+            await livro.findByIdAndUpdate(id, req.body);
+            res.status(200).json({ mensagem: "Livro atualizado com sucesso" });
         } catch (erro) {
-            res.status(500).json({ mensagem: `${erro.message} - falha ao cadastrar livro` });
+            res.status(500).json({ mensagem: `${erro.message} - falha na atualização` });
         }
     }
 
-    // Atualiza um livro existente no MongoDB
-    static async atualizarLivro (req, res){
-    try {
-        const id = req.params.id;
-        await livro.findByIdAndUpdate(id, req.body);
-        res.status(200).json({ mensagem: "Livro atualizado com sucesso" });
-    } catch (erro) {
-        res.status(500).json({ mensagem: `${erro.message} - falha na atualização` });
-    }
-};
-
     // Deleta um livro existente no MongoDB
     static async excluirLivro (req, res){
-    try {
-        const id = req.params.id;
-        await livro.findByIdAndDelete(id);
-        res.status(200).json({ mensagem: "Livro deletado com sucesso" });
-    } catch (erro) {
-        res.status(500).json({ mensagem: `${erro.message} - falha na exclusão` });
+        try {
+            const id = req.params.id;
+            await livro.findByIdAndDelete(id);
+            res.status(200).json({ mensagem: "Livro deletado com sucesso" });
+        } catch (erro) {
+            res.status(500).json({ mensagem: `${erro.message} - falha na exclusão` });
+        }
     }
-};
+
+    // Busca livros pelo Query Param de editora
     static async listarLivrosPorEditora(req, res) {
         const editora = req.query.editora;
         try{
@@ -94,8 +81,6 @@ class LivroController {
             res.status(500).json({ mensagem: `${erro.message} - falha na busca` });
         }
     }
-
-
-};
+}
 
 export default LivroController;
