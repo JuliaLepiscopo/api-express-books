@@ -45,7 +45,7 @@ class AutorController {
 };
 
     // Deleta um autor existente no MongoDB
-    static async deletarAutor (req, res){
+    static async excluirAutor (req, res){
     try {
         const id = req.params.id;
         await autor.findByIdAndDelete(id);

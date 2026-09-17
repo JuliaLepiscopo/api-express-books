@@ -45,7 +45,7 @@ class LivroController {
 };
 
     // Deleta um livro existente no MongoDB
-    static async deletarLivro (req, res){
+    static async excluirLivro (req, res){
     try {
         const id = req.params.id;
         await livro.findByIdAndDelete(id);
