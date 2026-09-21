@@ -2,7 +2,7 @@ import express from "express";
 import LivroControllers from "../controllers/LivroControllers.js"; 
 
 const routes = express.Router();
-
+// Define as rotas para os livros
 routes.get("/livros", LivroControllers.listarLivros);
 routes.get("/livros/busca", LivroControllers.listarLivroPorEditora); // <-- Corrigido (tirado o 's' do Livro)
 routes.get("/livros/:id", LivroControllers.listarLivroPorId);
