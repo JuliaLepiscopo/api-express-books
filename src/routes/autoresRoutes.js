@@ -2,7 +2,7 @@ import express from "express";
 import autorController from "../controllers/autorControllers.js"; 
 
 const routes = express.Router();
-
+// Define as rotas para os autores
 routes.get("/autores", autorController.listarAutores);
 routes.get("/autores/:id", autorController.listarAutorPorId);
 routes.post("/autores", autorController.cadastrarAutor);

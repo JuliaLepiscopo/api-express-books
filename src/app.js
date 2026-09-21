@@ -1,6 +1,8 @@
 import express from "express";
 import connectNaDatabase from "./config/dbConnect.js";
 import routes from "./routes/index.js"; //Importando o arquivo index.js de rotas
+import manipuladorDeErros from "./middlewares/manipuladorDeErros.js"; // Importando o middleware de tratamento de erros
+
 
 try {
     await connectNaDatabase(); // <-- Esta linha precisa continuar aqui!
@@ -14,8 +16,6 @@ app.use(express.json()); // Middleware para interpretar JSON no corpo das requis
 routes(app); //Chama a função que criada no index.js passando o 'app'
 
 // eslint-disable-next-line no-unused-vars
-app.use((erro, req, res, next) => {
-    res.status(500).send({ message: "Erro interno no servidor" });
-});
+app.use(manipuladorDeErros); // Middleware para tratamento de erros
 
 export default app;

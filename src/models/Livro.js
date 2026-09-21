@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// Aqui definimos a "forma" do livro no banco de dados
+// Define o schema do livro
 const livroSchema = new mongoose.Schema({
     id: { type: mongoose.Schema.Types.ObjectId },
     titulo: { type: String, required: true },
