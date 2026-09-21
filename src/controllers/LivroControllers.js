@@ -1,86 +1,92 @@
-import livro from "../models/Livro.js";
-import { autor } from "../models/Autor.js";
-
+import Livro from "../models/Livro.js";
 class LivroController {
-    // Busca todos os livros no MongoDB
-    static async listarLivros (req, res){
-        try{
-            const listaLivros = await livro.find({});
-            res.status(200).json(listaLivros);
-        } catch (erro) {
-            res.status(500).json({ mensagem: `${erro.message} - falha na requisição dos livros` });
-        }
+  // Busca todos os livros no MongoDB
+  static listarLivros = async (req, res) => {
+    try {
+      const livrosResultado = await Livro.find()
+        .populate("autor")
+        .exec();
+
+      res.status(200).json(livrosResultado);
+    } catch (erro) {
+      console.error(erro); // <-- Erro utilizado para registro no console
+      res.status(500).json({ message: "Erro interno no servidor" });
     }
+  };
 
-    // Busca um livro específico pelo ID do MongoDB
-    static async listarLivroPorId (req, res){
-        try {
-            const id = req.params.id;
-            const livroEncontrado = await livro.findById(id);
+  // Busca um livro específico pelo ID do MongoDB
+  static listarLivroPorId = async (req, res) => {
+    try {
+      const id = req.params.id;
 
-            // Retorna 404 se o ID for válido no formato, mas não existir no banco
-            if (livroEncontrado !== null) {
-                res.status(200).json(livroEncontrado);
-            } else {
-                res.status(404).json({ mensagem: "Id do Livro não localizado." });
-            }
-        } catch (erro) {
-            res.status(500).json({ mensagem: `${erro.message} - falha na requisição do livro` });
-        }
+      const livroResultados = await Livro.findById(id)
+        .populate("autor", "nome")
+        .exec();
+
+      // Tratamento para caso o ID seja válido, mas não exista no banco
+      if (livroResultados !== null) {
+        res.status(200).send(livroResultados);
+      } else {
+        res.status(404).send({ message: "Id do livro não localizado." });
+      }
+      
+    } catch (erro) {
+      res.status(400).send({ message: `${erro.message} - Requisição mal formatada.` });
     }
+  };
 
-    // Cadastra um novo livro no MongoDB
-    static async cadastrarLivros (req, res){
-        const novoLivro = req.body;
+  // Cadastra um novo livro no MongoDB
+  static cadastrarLivro = async (req, res) => {
+    try {
+      let livro = new Livro(req.body);
 
-        try {
-            const autorEncontrado = await autor.findById(novoLivro.autor);
+      const livroResultado = await livro.save();
 
-            // Prevenção de crash: só executa a criação se o ID do autor for válido e existir no banco
-            if (autorEncontrado !== null) {
-                const livroCompleto = { ...novoLivro, autor: {...autorEncontrado._doc }};
-                const livroCriado = await livro.create(livroCompleto);
-                res.status(201).json({ mensagem: "Livro adicionado com sucesso!", livro: livroCriado });
-            } else {
-                res.status(404).json({ mensagem: "Id do Autor não encontrado. Não é possível cadastrar o livro." });
-            }
-        } catch (erro) {
-            res.status(500).json({ mensagem: `${erro.message} - falha ao cadastrar livro` });
-        }
+      res.status(201).send(livroResultado.toJSON());
+    } catch (erro) {
+      res.status(500).send({ message: `${erro.message} - falha ao cadastrar livro.` });
     }
+  };
 
-    // Atualiza um livro existente no MongoDB
-    static async atualizarLivro (req, res){
-        try {
-            const id = req.params.id;
-            await livro.findByIdAndUpdate(id, req.body);
-            res.status(200).json({ mensagem: "Livro atualizado com sucesso" });
-        } catch (erro) {
-            res.status(500).json({ mensagem: `${erro.message} - falha na atualização` });
-        }
+  // Atualiza um livro existente no MongoDB
+  static atualizarLivro = async (req, res) => {
+    try {
+      const id = req.params.id;
+    
+      await Livro.findByIdAndUpdate(id, { $set: req.body });
+    
+      res.status(200).send({ message: "Livro atualizado com sucesso" });
+    } catch (erro) {
+      res.status(500).send({ message: erro.message });
     }
+  };
 
-    // Deleta um livro existente no MongoDB
-    static async excluirLivro (req, res){
-        try {
-            const id = req.params.id;
-            await livro.findByIdAndDelete(id);
-            res.status(200).json({ mensagem: "Livro deletado com sucesso" });
-        } catch (erro) {
-            res.status(500).json({ mensagem: `${erro.message} - falha na exclusão` });
-        }
-    }
+  // Deleta um livro existente no MongoDB
+  static excluirLivro = async (req, res) => {
+    try {
+      const id = req.params.id;
 
-    // Busca livros pelo Query Param de editora
-    static async listarLivrosPorEditora(req, res) {
-        const editora = req.query.editora;
-        try{
-            const livrosPorEditora = await livro.find({ editora: editora });
-            res.status(200).json(livrosPorEditora);
-        } catch (erro) {
-            res.status(500).json({ mensagem: `${erro.message} - falha na busca` });
-        }
+      await Livro.findByIdAndDelete(id);
+
+      res.status(200).send({ message: "Livro removido com sucesso" });
+    } catch (erro) {
+      res.status(500).send({ message: erro.message });
     }
+  };
+
+  // Busca livros pelo Query Param de editora
+  static listarLivroPorEditora = async (req, res) => {
+    try {
+      const editora = req.query.editora;
+      
+      const livrosResultado = await Livro.find({ "editora": editora });
+
+      res.status(200).send(livrosResultado);
+    } catch (erro) {
+      console.error(erro); // <-- Erro utilizado para registro no console
+      res.status(500).json({ message: "Erro interno no servidor" });
+    }
+  };
 }
 
 export default LivroController;
