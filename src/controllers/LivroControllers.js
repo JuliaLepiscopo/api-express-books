@@ -1,5 +1,5 @@
 import Livro from "../models/Livro.js";
-import NaoEncontrado from "../erros/NaoEncontrado.js";
+import NaoEncontrado from "../middlewares/manipulador404.js";
 
 class LivroController {
   // Busca todos os livros no MongoDB
