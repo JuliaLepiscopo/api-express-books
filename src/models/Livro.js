@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { autorSchema } from "./Autor.js";
 
 // Aqui definimos a "forma" do livro no banco de dados
 const livroSchema = new mongoose.Schema({
