@@ -1,5 +1,6 @@
 import { Livro } from "../models/index.js";
 import NaoEncontrado from "../erros/NaoEncontrado.js"; // <- Caminho corrigido para a classe de erro
+import { Autor } from "../models/index.js";
 
 class LivroController {
   // Busca todos os livros no MongoDB
@@ -82,21 +83,44 @@ class LivroController {
   };
 
   // Busca livros pelo Query Param de editora
-  static listarLivroPorFiltro = async (req, res, next) => {
+    static listarLivroPorFiltro = async (req, res, next) => {
     try {
-      const {editora, titulo} = req.query;
-      
-      const busca = {};
-      if (editora) busca.editora = editora;
-      if (titulo) busca.titulo = titulo;
+      const busca = await processaBusca(req.query);
 
-      const livrosResultado = await Livro.find(busca);
+      if (busca !== null) {
+        const livrosResultado = await Livro
+          .find(busca)
+          .populate("autor");
 
-      res.status(200).send(livrosResultado);
+        res.status(200).send(livrosResultado);
+      } else {
+        res.status(200).send([]);
+      }
     } catch (erro) {
-      next(erro); // Passa o erro para o middleware de tratamento de erros
+      next(erro);
     }
   };
+}
+
+async function processaBusca(parametros) {
+  const { editora, titulo, nomeAutor } = parametros;
+
+  let busca = {};
+
+  if (editora) busca.editora = editora;
+  if (titulo) busca.titulo = { $regex: titulo, $options: "i" };
+
+  if (nomeAutor) {
+    const autor = await Autor.findOne({ nome: nomeAutor });
+
+    if (autor !== null) {
+      busca.autor = autor._id;
+    } else {
+      busca = null;
+    }
+  }
+
+  return busca;
 }
 
 export default LivroController;
