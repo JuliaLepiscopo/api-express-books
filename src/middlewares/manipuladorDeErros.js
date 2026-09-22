@@ -6,6 +6,8 @@ import NaoEncontrado from "../erros/NaoEncontrado.js";
 
 // eslint-disable-next-line no-unused-vars
 function manipuladorDeErros(erro, req, res, next) {
+    console.error(" stack trace do erro:", erro); // <-- Adicione esta linha!
+
     if (erro instanceof mongoose.Error.CastError) {
         new RequisicaoIncorreta().enviarResposta(res);
     } else if (erro instanceof mongoose.Error.ValidationError) {
