@@ -1,5 +1,5 @@
 import NaoEncontrado from "../erros/NaoEncontrado.js";
-import { autor as Autor } from "../models/Autor.js";
+import { Autor } from "../models/index.js"; // <- Linha corrigida
 
 class AutorController {
   // Busca todos os autores no MongoDB
@@ -24,7 +24,7 @@ class AutorController {
       if (autorResultado !== null) {
         res.status(200).send(autorResultado);
       } else {
-        next (new NaoEncontrado("Id do Autor não localizado."))
+        next(new NaoEncontrado("Id do Autor não localizado."));
       }
     } catch (erro) {
       next(erro); // Passa o erro para o middleware de tratamento de erros
@@ -32,7 +32,7 @@ class AutorController {
   }; 
 
   // Cadastra um novo autor no MongoDB
-  static cadastrarAutor = async (req, res,next) => {
+  static cadastrarAutor = async (req, res, next) => {
     try {
       let autor = new Autor(req.body);
       const autorResultado = await autor.save();
@@ -45,7 +45,7 @@ class AutorController {
   };
 
   // Atualiza um autor existente no MongoDB
-    static atualizarAutor = async (req, res, next) => {
+  static atualizarAutor = async (req, res, next) => {
     try {
       const id = req.params.id;
 
@@ -63,7 +63,7 @@ class AutorController {
   };
 
   // Deleta um autor existente no MongoDB
-    static excluirAutor = async (req, res, next) => {
+  static excluirAutor = async (req, res, next) => {
     try {
       const id = req.params.id;
 
