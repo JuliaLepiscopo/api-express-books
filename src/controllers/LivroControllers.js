@@ -1,5 +1,5 @@
-import Livro from "../models/Livro.js";
-import NaoEncontrado from "../middlewares/manipulador404.js";
+import { Livro } from "../models/index.js";
+import NaoEncontrado from "../erros/NaoEncontrado.js"; // <- Caminho corrigido para a classe de erro
 
 class LivroController {
   // Busca todos os livros no MongoDB
@@ -16,7 +16,7 @@ class LivroController {
   };
 
   // Busca um livro específico pelo ID do MongoDB
-    static listarLivroPorId = async (req, res, next) => {
+  static listarLivroPorId = async (req, res, next) => {
     try {
       const id = req.params.id;
 
@@ -48,7 +48,7 @@ class LivroController {
   };
 
   // Atualiza um livro existente no MongoDB
-    static atualizarLivro = async (req, res, next) => {
+  static atualizarLivro = async (req, res, next) => {
     try {
       const id = req.params.id;
 
@@ -65,7 +65,7 @@ class LivroController {
   };
 
   // Deleta um livro existente no MongoDB
-    static excluirLivro = async (req, res, next) => {
+  static excluirLivro = async (req, res, next) => {
     try {
       const id = req.params.id;
 
