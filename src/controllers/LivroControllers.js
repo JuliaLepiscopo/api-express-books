@@ -1,16 +1,29 @@
 import { Livro } from "../models/index.js";
 import NaoEncontrado from "../erros/NaoEncontrado.js"; // <- Caminho corrigido para a classe de erro
 import { Autor } from "../models/index.js";
+import RequisicaoIncorreta from "../erros/RequisicaoIncorreta.js";
 
 class LivroController {
   // Busca todos os livros no MongoDB
   static listarLivros = async (req, res, next) => {
     try {
-      const livrosResultado = await Livro.find()
-        .populate("autor")
-        .exec();
+      let { limite = 5, pagina = 1 } = req.query;
 
-      res.status(200).json(livrosResultado);
+      limite = parseInt(limite);
+      pagina = parseInt(pagina);
+
+      if (limite > 0 && pagina > 0){
+        const livrosResultado = await Livro.find()
+          .skip((pagina - 1) * limite)
+          .limit(limite)
+          .populate("autor")
+          .exec();
+
+        res.status(200).json(livrosResultado);
+      } else {
+        next(new RequisicaoIncorreta());
+      }
+
     } catch (erro) {
       next(erro); // Passa o erro para o middleware de tratamento de erros
     }
