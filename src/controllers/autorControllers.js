@@ -5,9 +5,10 @@ class AutorController {
   // Busca todos os autores no MongoDB
   static listarAutores = async (req, res, next) => {
     try {
-      const autoresResultado = await Autor.find();
+      const autoresResultado = Autor.find();
+      req.autorResultado = autoresResultado;
 
-      res.status(200).json(autoresResultado);
+      next();
     } catch (erro) {
       next(erro); // Passa o erro para o middleware de tratamento de erros
     }
