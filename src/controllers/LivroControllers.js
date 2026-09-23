@@ -1,32 +1,17 @@
 import { Livro } from "../models/index.js";
 import NaoEncontrado from "../erros/NaoEncontrado.js";
 import { Autor } from "../models/index.js";
-import RequisicaoIncorreta from "../erros/RequisicaoIncorreta.js";
+import livro from "../models/Livro.js";
 
 class LivroController {
   // Busca todos os livros no MongoDB com paginação e ordenação
   static listarLivros = async (req, res, next) => {
     try {
-      // CORREÇÃO: Removemos o 'ordem = -1' daqui para evitar conflito
-      let { limite = 5, pagina = 1, ordenacao = "_id:-1" } = req.query;
+      const buscaLivros = Livro.find();
       
-      let [campoOrdenacao, ordemParam] = ordenacao.split(":");
+      req.resultado = buscaLivros;
 
-      limite = parseInt(limite);
-      pagina = parseInt(pagina);
-      const ordem = parseInt(ordemParam); // Convertemos a ordem extraída para número
-
-      if (limite > 0 && pagina > 0) {
-        const livrosResultado = await Livro.find()
-          .sort({ [campoOrdenacao]: ordem })
-          .skip((pagina - 1) * limite)
-          .limit(limite);
-          // O .populate("autor") foi removido daqui pois o plugin faz isso sozinho!
-
-        res.status(200).json(livrosResultado);
-      } else {
-        next(new RequisicaoIncorreta());
-      }
+      next();
     } catch (erro) {
       next(erro);
     }
@@ -100,10 +85,12 @@ class LivroController {
       const busca = await processaBusca(req.query);
 
       if (busca !== null) {
-        const livrosResultado = await Livro.find(busca);
-        // O .populate("autor") foi removido daqui também
-
-        res.status(200).send(livrosResultado);
+        const livrosResultado = livro
+          .find(busca)
+          .populate("autor");
+        
+        req.resultado = livrosResultado
+        next();
       } else {
         res.status(200).send([]);
       }
